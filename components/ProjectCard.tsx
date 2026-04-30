@@ -29,11 +29,11 @@ export default function ProjectCard({
   }
 
   return (
-    <div className="p-4 border rounded-lg shadow hover:bg-gray-50 transition">
+    <div className="p-4 border rounded-lg shadow bg-white hover:bg-gray-50 transition">
       <div className="flex items-center justify-between mb-2">
         {editing ? (
           <input
-            className="flex-1 border rounded px-2 py-1 mr-2"
+            className="flex-1 border rounded px-2 py-1 mr-2 bg-white"
             value={editName}
             onChange={e => setEditName(e.target.value)}
             onKeyDown={e => {

@@ -37,17 +37,20 @@ export default function ProjectPage() {
 
   if (!project) {
     return (
-      <main className="max-w-xl mx-auto py-10 px-4">
-        <div className="mb-4">
-          <Link href="/" className="text-blue-600 hover:underline">← Back</Link>
+      <main className="min-h-screen bg-[#A9C3A1] py-10 px-4">
+        <div className="max-w-xl mx-auto">
+          <div className="mb-4">
+            <Link href="/" className="text-blue-600 hover:underline">← Back</Link>
+          </div>
+          <div className="text-gray-500">Project not found.</div>
         </div>
-        <div className="text-gray-500">Project not found.</div>
       </main>
     );
   }
 
   return (
-    <main className="max-w-xl mx-auto py-10 px-4">
+    <main className="min-h-screen bg-[#A9C3A1] py-10 px-4">
+      <div className="max-w-xl mx-auto">
       <div className="mb-4 flex items-center justify-between">
         <Link href="/" className="text-blue-600 hover:underline">← Back</Link>
         <h1 className="text-xl font-bold">{project.name}</h1>
@@ -75,6 +78,7 @@ export default function ProjectPage() {
         ) : (
           project.entries.map((e: Entry) => <EntryItem key={e.date} entry={e} />)
         )}
+      </div>
       </div>
     </main>
   );

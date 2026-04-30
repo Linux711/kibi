@@ -40,26 +40,28 @@ export default function Home() {
   }
 
   return (
-    <main className="max-w-xl mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold mb-6">Project Journal</h1>
-      <form onSubmit={addProject} className="flex gap-2 mb-6">
-        <input
-          className="border rounded px-3 py-2 flex-1"
-          placeholder="New project name"
-          value={newName}
-          onChange={e => setNewName(e.target.value)}
-          required
-        />
-        <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" type="submit">
-          Add
-        </button>
-      </form>
-      <div className="space-y-4">
-        {projects.length === 0 ? (
-          <div className="text-gray-500">No projects yet.</div>
-        ) : (
-          projects.map(p => <ProjectCard key={p.id} project={p} onEdit={editProject} onDelete={deleteProject} />)
-        )}
+    <main className="min-h-screen bg-[#A9C3A1] py-10 px-4">
+      <div className="max-w-xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Project Journal</h1>
+        <form onSubmit={addProject} className="flex gap-2 mb-6">
+          <input
+            className="border rounded px-3 py-2 flex-1 bg-white"
+            placeholder="New project name"
+            value={newName}
+            onChange={e => setNewName(e.target.value)}
+            required
+          />
+          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" type="submit">
+            Add
+          </button>
+        </form>
+        <div className="space-y-4">
+          {projects.length === 0 ? (
+            <div className="text-gray-500">No projects yet.</div>
+          ) : (
+            projects.map(p => <ProjectCard key={p.id} project={p} onEdit={editProject} onDelete={deleteProject} />)
+          )}
+        </div>
       </div>
     </main>
   );
