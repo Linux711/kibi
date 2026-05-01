@@ -40,7 +40,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-[#A9C3A1] py-10 px-4">
+    <main className="py-10 px-4">
       <div className="max-w-xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Project Journal</h1>
         <form onSubmit={addProject} className="flex gap-2 mb-6">

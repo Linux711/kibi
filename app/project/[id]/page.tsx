@@ -37,7 +37,7 @@ export default function ProjectPage() {
 
   if (!project) {
     return (
-      <main className="min-h-screen bg-[#A9C3A1] py-10 px-4">
+      <main className="py-10 px-4">
         <div className="max-w-xl mx-auto">
           <div className="mb-4">
             <Link href="/" className="text-blue-600 hover:underline">← Back</Link>
@@ -49,7 +49,7 @@ export default function ProjectPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#A9C3A1] py-10 px-4">
+    <main className="py-10 px-4">
       <div className="max-w-xl mx-auto">
       <div className="mb-4 flex items-center justify-between">
         <Link href="/" className="text-blue-600 hover:underline">← Back</Link>
