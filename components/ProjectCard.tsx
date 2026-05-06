@@ -18,12 +18,15 @@ export default function ProjectCard({
   onDelete: (id: string) => void;
   selected?: boolean;
   onSelect?: () => void;
-  onEntryChange?: (entry: { date: string; hoursSpent: number; notes: string }) => void;
+  onEntryChange?: (entry: { date: string; hoursSpent: string; notes: string }) => void;
   onEntryDelete?: (date: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(project.name);
   const [showDetails, setShowDetails] = useState(false);
+  const [newEntryDate, setNewEntryDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [newEntryHours, setNewEntryHours] = useState("0:00");
+  const [newEntryNotes, setNewEntryNotes] = useState("");
 
 
   function handleSave() {
@@ -42,7 +45,7 @@ export default function ProjectCard({
   // For today's entry
   const today = format(new Date(), "yyyy-MM-dd");
   const todayEntry = project.entries.find(e => e.date === today) || { date: today, hoursSpent: 0, notes: "" };
-  const entryInputRef = useRef<HTMLInputElement>(null);
+  const entryInputRef = useRef<HTMLTextAreaElement>(null);
 
   // Handle click: first selects, second expands
   function handleCardClick() {
@@ -127,7 +130,11 @@ export default function ProjectCard({
               </button>
               <button
                 className="text-red-600 hover:text-red-800 p-1"
-                onClick={() => onDelete(project.id)}
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+                    onDelete(project.id);
+                  }
+                }}
                 title="Delete"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,19 +153,19 @@ export default function ProjectCard({
           <label className="block text-sm font-medium mb-1">Today's Entry</label>
           <div className="flex gap-2 mb-2">
             <input
-              type="number"
+              type="text"
               className="border rounded px-2 py-1 w-20"
               value={todayEntry.hoursSpent}
-              placeholder="Hours"
+              placeholder="e.g. 2:30"
               onChange={e => {
-                const hours = parseFloat(e.target.value) || 0;
-                onEntryChange?.({ ...todayEntry, hoursSpent: hours });
+                onEntryChange?.({ ...todayEntry, hoursSpent: e.target.value });
               }}
               onClick={e => e.stopPropagation()}
             />
-            <input
+            <textarea
               ref={entryInputRef}
-              className="border rounded px-2 py-1 flex-1"
+              className="border rounded px-2 py-1 flex-1 resize-none"
+              rows={3}
               value={todayEntry.notes}
               placeholder="Notes for today..."
               onChange={e => {
@@ -166,6 +173,49 @@ export default function ProjectCard({
               }}
               onClick={e => e.stopPropagation()}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Add New Entry Form */}
+      {selected && (
+        <div className="mt-4">
+          <label className="block text-sm font-medium mb-1">Add New Entry</label>
+          <div className="flex gap-2 mb-2">
+            <input
+              type="date"
+              className="border rounded px-2 py-1"
+              value={newEntryDate}
+              onChange={e => setNewEntryDate(e.target.value)}
+              onClick={e => e.stopPropagation()}
+            />
+            <input
+              type="text"
+              className="border rounded px-2 py-1 w-20"
+              value={newEntryHours}
+              placeholder="e.g. 2:30"
+              onChange={e => setNewEntryHours(e.target.value)}
+              onClick={e => e.stopPropagation()}
+            />
+            <textarea
+              className="border rounded px-2 py-1 flex-1 resize-none"
+              rows={2}
+              value={newEntryNotes}
+              placeholder="Notes"
+              onChange={e => setNewEntryNotes(e.target.value)}
+              onClick={e => e.stopPropagation()}
+            />
+            <button
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              onClick={() => {
+                onEntryChange?.({ date: newEntryDate, hoursSpent: newEntryHours, notes: newEntryNotes });
+                setNewEntryDate(format(new Date(), "yyyy-MM-dd"));
+                setNewEntryHours("0:00");
+                setNewEntryNotes("");
+              }}
+            >
+              Add
+            </button>
           </div>
         </div>
       )}
@@ -183,18 +233,18 @@ export default function ProjectCard({
                   <div className="text-xs text-gray-500 mb-1">{entry.date}</div>
                   <div className="flex gap-2">
                     <input
-                      type="number"
+                      type="text"
                       className="border rounded px-2 py-1 w-20 text-sm"
                       value={entry.hoursSpent}
-                      placeholder="Hours"
+                      placeholder="e.g. 2:30"
                       onChange={e => {
-                        const hours = parseFloat(e.target.value) || 0;
-                        onEntryChange?.({ ...entry, hoursSpent: hours });
+                        onEntryChange?.({ ...entry, hoursSpent: e.target.value });
                       }}
                       onClick={e => e.stopPropagation()}
                     />
-                    <input
-                      className="border rounded px-2 py-1 flex-1 text-sm"
+                    <textarea
+                      className="border rounded px-2 py-1 flex-1 text-sm resize-none"
+                      rows={2}
                       value={entry.notes}
                       placeholder="Notes"
                       onChange={e => {
@@ -206,7 +256,9 @@ export default function ProjectCard({
                       className="text-red-600 hover:text-red-800 p-1"
                       onClick={e => {
                         e.stopPropagation();
-                        onEntryDelete?.(entry.date);
+                        if (window.confirm('Are you sure you want to delete this entry?')) {
+                          onEntryDelete?.(entry.date);
+                        }
                       }}
                       title="Delete Entry"
                     >
