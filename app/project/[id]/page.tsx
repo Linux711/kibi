@@ -20,7 +20,7 @@ export default function ProjectPage() {
   setProject(loaded.find((p: Project) => p.id === id) || null);
   }, [id]);
 
-  function handleAdd(hours: number, notes: string) {
+  function handleAdd(hours: string, notes: string) {
     if (!project) return;
     const today = new Date().toISOString().slice(0, 10);
     const newEntry: Entry = { date: today, hoursSpent: hours, notes };

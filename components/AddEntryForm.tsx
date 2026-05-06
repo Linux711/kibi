@@ -4,7 +4,7 @@ export default function AddEntryForm({
   onAdd,
   disabled,
 }: {
-  onAdd: (hours: number, notes: string) => void;
+  onAdd: (hours: string, notes: string) => void;
   disabled?: boolean;
 }) {
   const [hours, setHours] = useState('');
@@ -13,13 +13,8 @@ export default function AddEntryForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const h = Math.round(Number(hours));
-    if (isNaN(h) || h < 0) {
-      setError('Enter valid hours');
-      return;
-    }
     setError('');
-    onAdd(h, notes);
+    onAdd(hours, notes);
     setHours('');
     setNotes('');
   }
@@ -27,10 +22,10 @@ export default function AddEntryForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-2 bg-gray-50 p-4 rounded shadow">
       <div>
-        <label className="block text-sm font-medium">Hours Spent</label>
+        <label className="block text-sm font-medium">Time Spent (h:mm)</label>
         <input
-          type="number"
-          min="0"
+          type="text"
+          placeholder="e.g. 2:30"
           className="mt-1 block w-full border rounded px-2 py-1"
           value={hours}
           onChange={e => setHours(e.target.value)}

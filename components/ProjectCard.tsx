@@ -44,7 +44,7 @@ export default function ProjectCard({
 
   // For today's entry
   const today = format(new Date(), "yyyy-MM-dd");
-  const todayEntry = project.entries.find(e => e.date === today) || { date: today, hoursSpent: 0, notes: "" };
+  const todayEntry = project.entries.find(e => e.date === today) || { date: today, hoursSpent: "0:00", notes: "" };
   const entryInputRef = useRef<HTMLTextAreaElement>(null);
 
   // Handle click: first selects, second expands
