@@ -4,6 +4,34 @@ import { Project } from '../types';
 import { getLastUpdated } from '../lib/utils';
 import { format } from "date-fns";
 
+function formatHours(value: string): string {
+  const cleaned = value.replace(/[^0-9]/g, '');
+  const len = cleaned.length;
+  let hours = 0;
+  let minutes = 0;
+
+  if (len === 1) {
+    hours = parseInt(cleaned);
+  } else if (len === 2) {
+    hours = 0;
+    minutes = parseInt(cleaned);
+  } else if (len === 3) {
+    hours = parseInt(cleaned[0]);
+    minutes = parseInt(cleaned.slice(1));
+  } else if (len === 4) {
+    hours = parseInt(cleaned.slice(0, 2));
+    minutes = parseInt(cleaned.slice(2));
+  } else {
+    return "0:00"; // Invalid length
+  }
+
+  if (isNaN(hours) || isNaN(minutes) || hours < 0 || minutes < 0 || minutes > 59) {
+    return "0:00";
+  }
+
+  return `${hours}:${minutes.toString().padStart(2, '0')}`;
+}
+
 export default function ProjectCard({
   project,
   onEdit,
@@ -157,8 +185,13 @@ export default function ProjectCard({
               className="border rounded px-2 py-1 w-20"
               value={todayEntry.hoursSpent}
               placeholder="e.g. 2:30"
+              maxLength={4}
               onChange={e => {
                 onEntryChange?.({ ...todayEntry, hoursSpent: e.target.value });
+              }}
+              onBlur={e => {
+                const formatted = formatHours(e.target.value);
+                onEntryChange?.({ ...todayEntry, hoursSpent: formatted });
               }}
               onClick={e => e.stopPropagation()}
             />
@@ -194,7 +227,9 @@ export default function ProjectCard({
               className="border rounded px-2 py-1 w-20"
               value={newEntryHours}
               placeholder="e.g. 2:30"
+              maxLength={4}
               onChange={e => setNewEntryHours(e.target.value)}
+              onBlur={e => setNewEntryHours(formatHours(e.target.value))}
               onClick={e => e.stopPropagation()}
             />
             <textarea
@@ -208,7 +243,8 @@ export default function ProjectCard({
             <button
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               onClick={() => {
-                onEntryChange?.({ date: newEntryDate, hoursSpent: newEntryHours, notes: newEntryNotes });
+                const formattedHours = formatHours(newEntryHours);
+                onEntryChange?.({ date: newEntryDate, hoursSpent: formattedHours, notes: newEntryNotes });
                 setNewEntryDate(format(new Date(), "yyyy-MM-dd"));
                 setNewEntryHours("0:00");
                 setNewEntryNotes("");
@@ -237,8 +273,13 @@ export default function ProjectCard({
                       className="border rounded px-2 py-1 w-20 text-sm"
                       value={entry.hoursSpent}
                       placeholder="e.g. 2:30"
+                      maxLength={4}
                       onChange={e => {
                         onEntryChange?.({ ...entry, hoursSpent: e.target.value });
+                      }}
+                      onBlur={e => {
+                        const formatted = formatHours(e.target.value);
+                        onEntryChange?.({ ...entry, hoursSpent: formatted });
                       }}
                       onClick={e => e.stopPropagation()}
                     />
