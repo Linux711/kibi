@@ -152,6 +152,17 @@ export default function ProjectCard({
           Save
         </button>
         <button
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          onClick={() => {
+            if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
+              onDelete(project.id);
+              setEditingJson(false);
+            }
+          }}
+        >
+          Delete Project
+        </button>
+        <button
           className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
           onClick={() => setEditingJson(false)}
         >
