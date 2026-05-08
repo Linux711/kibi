@@ -55,6 +55,7 @@ export default function ProjectCard({
   const [newEntryDate, setNewEntryDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [newEntryHours, setNewEntryHours] = useState("0:00");
   const [newEntryNotes, setNewEntryNotes] = useState("");
+  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
 
 
   function handleSave() {
@@ -98,6 +99,26 @@ export default function ProjectCard({
   const previousEntries = project.entries
     .filter(e => e.date !== today)
     .sort((a, b) => b.date.localeCompare(a.date));
+
+  // Group entries by month
+  const groupedEntries = previousEntries.reduce((acc, entry) => {
+    const [year, month] = entry.date.split('-').slice(0, 2);
+    const monthKey = `${year}-${month}`;
+    if (!acc[monthKey]) acc[monthKey] = [];
+    acc[monthKey].push(entry);
+    return acc;
+  }, {} as Record<string, typeof previousEntries>);
+
+  // Month keys sorted ascending (oldest first)
+  const monthKeys = Object.keys(groupedEntries).sort();
+
+  // Current month entries
+  const currentMonthKey = monthKeys[currentMonthIndex];
+  const currentMonthEntries = currentMonthKey ? groupedEntries[currentMonthKey] : [];
+
+  useEffect(() => {
+    setCurrentMonthIndex(monthKeys.length > 0 ? monthKeys.length - 1 : 0);
+  }, [monthKeys.length]);
 
   return (
     <div
@@ -226,7 +247,7 @@ export default function ProjectCard({
               type="text"
               className="border rounded px-2 py-1 w-20"
               value={newEntryHours}
-              placeholder="e.g. 2:30"
+              placeholder="0:00"
               maxLength={4}
               onChange={e => setNewEntryHours(e.target.value)}
               onBlur={e => setNewEntryHours(formatHours(e.target.value))}
@@ -256,61 +277,100 @@ export default function ProjectCard({
         </div>
       )}
 
-      {/* Show details (all entries except today) on second click */}
+      {/* Show details (entries by month, paginated) on second click */}
       {selected && showDetails && (
         <div className="mt-6">
           <div className="font-semibold mb-2">Previous Entries</div>
           {previousEntries.length === 0 ? (
             <div className="text-gray-400 text-sm">No previous entries.</div>
           ) : (
-            <ul className="space-y-2">
-              {previousEntries.map(entry => (
-                <li key={entry.date} className="border rounded px-3 py-2 bg-gray-50">
-                  <div className="text-xs text-gray-500 mb-1">{entry.date}</div>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      className="border rounded px-2 py-1 w-20 text-sm"
-                      value={entry.hoursSpent}
-                      placeholder="e.g. 2:30"
-                      maxLength={4}
-                      onChange={e => {
-                        onEntryChange?.({ ...entry, hoursSpent: e.target.value });
-                      }}
-                      onBlur={e => {
-                        const formatted = formatHours(e.target.value);
-                        onEntryChange?.({ ...entry, hoursSpent: formatted });
-                      }}
-                      onClick={e => e.stopPropagation()}
-                    />
-                    <textarea
-                      className="border rounded px-2 py-1 flex-1 text-sm resize-none"
-                      rows={2}
-                      value={entry.notes}
-                      placeholder="Notes"
-                      onChange={e => {
-                        onEntryChange?.({ ...entry, notes: e.target.value });
-                      }}
-                      onClick={e => e.stopPropagation()}
-                    />
-                    <button
-                      className="text-red-600 hover:text-red-800 p-1"
-                      onClick={e => {
-                        e.stopPropagation();
-                        if (window.confirm('Are you sure you want to delete this entry?')) {
-                          onEntryDelete?.(entry.date);
-                        }
-                      }}
-                      title="Delete Entry"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <>
+              {/* Month navigation */}
+              {monthKeys.length > 1 && (
+                <div className="flex justify-between items-center mb-4">
+                  <button
+                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentMonthIndex(Math.max(0, currentMonthIndex - 1));
+                    }}
+                    disabled={currentMonthIndex === 0}
+                  >
+                    Prev
+                  </button>
+                  <span className="font-medium">
+                    {currentMonthKey ? (() => {
+                      const [year, month] = currentMonthKey.split('-');
+                      const displayDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+                      return format(displayDate, "MMMM yyyy");
+                    })() : ""}
+                  </span>
+                  <button
+                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setCurrentMonthIndex(Math.min(monthKeys.length - 1, currentMonthIndex + 1));
+                    }}
+                    disabled={currentMonthIndex === monthKeys.length - 1}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+              {/* Entries for current month */}
+              {currentMonthEntries.length === 0 ? (
+                <div className="text-gray-400 text-sm">No entries for this month.</div>
+              ) : (
+                <ul className="space-y-2">
+                  {currentMonthEntries.map(entry => (
+                    <li key={entry.date} className="border rounded px-3 py-2 bg-gray-50">
+                      <div className="text-xs text-gray-500 mb-1">{entry.date}</div>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          className="border rounded px-2 py-1 w-20 text-sm"
+                          value={entry.hoursSpent}
+                          placeholder="e.g. 2:30"
+                          maxLength={4}
+                          onChange={e => {
+                            onEntryChange?.({ ...entry, hoursSpent: e.target.value });
+                          }}
+                          onBlur={e => {
+                            const formatted = formatHours(e.target.value);
+                            onEntryChange?.({ ...entry, hoursSpent: formatted });
+                          }}
+                          onClick={e => e.stopPropagation()}
+                        />
+                        <textarea
+                          className="border rounded px-2 py-1 flex-1 text-sm resize-none"
+                          rows={2}
+                          value={entry.notes}
+                          placeholder="Notes"
+                          onChange={e => {
+                            onEntryChange?.({ ...entry, notes: e.target.value });
+                          }}
+                          onClick={e => e.stopPropagation()}
+                        />
+                        <button
+                          className="text-red-600 hover:text-red-800 p-1"
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (window.confirm('Are you sure you want to delete this entry?')) {
+                              onEntryDelete?.(entry.date);
+                            }
+                          }}
+                          title="Delete Entry"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
           )}
         </div>
       )}
