@@ -118,13 +118,17 @@ export default function Home() {
         {/* Export/Import Buttons */}
         <div className="flex gap-2 mb-4">
           <button
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            style={{ backgroundColor: "#8783d1ff" }}
+            className="text-white px-4 py-2 rounded hover:opacity-90"
             onClick={handleExport}
             type="button"
           >
             Export
           </button>
-          <label className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 cursor-pointer">
+          <label
+            style={{ backgroundColor: "#44677eff" }}
+            className="text-white px-4 py-2 rounded hover:opacity-90 cursor-pointer"
+          >
             Import
             <input
               type="file"
@@ -144,7 +148,11 @@ export default function Home() {
             onChange={e => setNewCategoryName(e.target.value)}
             required
           />
-          <button className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700" type="submit">
+          <button
+            style={{ backgroundColor: "#38A3A5" }}
+            className="text-white px-4 py-2 rounded hover:opacity-90"
+            type="submit"
+          >
             Add Category
           </button>
         </form>
@@ -156,7 +164,7 @@ export default function Home() {
             categories.map(cat => (
               <div key={cat.id} className="border rounded-lg p-4 bg-gray-50">
                 <h2
-                  className={`text-xl font-semibold mb-4 cursor-pointer ${selectedCategoryId === cat.id ? 'text-blue-600' : ''}`}
+                  className={`text-xl font-semibold mb-4 cursor-pointer ${selectedCategoryId === cat.id ? 'text-[#44677eff]' : 'text-gray-700'}`}
                   onClick={() => setSelectedCategoryId(cat.id)}
                 >
                   {cat.name}
@@ -169,7 +177,11 @@ export default function Home() {
                     onChange={e => setProjectInputs(prev => ({...prev, [cat.id]: e.target.value}))}
                     required
                   />
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" type="submit">
+                  <button
+                    style={{ backgroundColor: "#8783d1ff" }}
+                    className="text-white px-4 py-2 rounded hover:opacity-90"
+                    type="submit"
+                  >
                     Add Project
                   </button>
                 </form>

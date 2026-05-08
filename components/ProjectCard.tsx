@@ -190,9 +190,9 @@ export default function ProjectCard({
             autoFocus
           />
         ) : (
-          <span className="flex-1 font-semibold text-lg">
-            {project.name}
-          </span>
+              <span className="flex-1 font-semibold text-lg text-[#44677eff]">
+                {project.name}
+              </span>
         )}
         <div className="flex gap-1">
           {editing ? (
@@ -310,18 +310,20 @@ export default function ProjectCard({
               onChange={e => setNewEntryNotes(e.target.value)}
               onClick={e => e.stopPropagation()}
             />
-            <button
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              onClick={() => {
-                const formattedHours = formatHours(newEntryHours);
-                onEntryChange?.({ date: newEntryDate, hoursSpent: formattedHours, notes: newEntryNotes });
-                setNewEntryDate(format(new Date(), "yyyy-MM-dd"));
-                setNewEntryHours("0:00");
-                setNewEntryNotes("");
-              }}
-            >
-              Add
-            </button>
+              <button
+                style={{ backgroundColor: "#38A3A5" }}
+                className="text-white px-4 py-2 rounded hover:opacity-90"
+                type="button"
+                onClick={() => {
+                  const formattedHours = formatHours(newEntryHours);
+                  onEntryChange?.({ date: newEntryDate, hoursSpent: formattedHours, notes: newEntryNotes });
+                  setNewEntryDate(format(new Date(), "yyyy-MM-dd"));
+                  setNewEntryHours("0:00");
+                  setNewEntryNotes("");
+                }}
+              >
+                Add
+              </button>
           </div>
         </div>
       )}
