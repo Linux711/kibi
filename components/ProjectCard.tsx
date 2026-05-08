@@ -36,6 +36,7 @@ export default function ProjectCard({
   project,
   onEdit,
   onDelete,
+  onUpdateProject,
   selected,
   onSelect,
   onEntryChange,
@@ -44,6 +45,7 @@ export default function ProjectCard({
   project: Project;
   onEdit: (id: string, newName: string) => void;
   onDelete: (id: string) => void;
+  onUpdateProject?: (updatedProject: Project) => void;
   selected?: boolean;
   onSelect?: () => void;
   onEntryChange?: (entry: { date: string; hoursSpent: string; notes: string }) => void;
@@ -56,6 +58,8 @@ export default function ProjectCard({
   const [newEntryHours, setNewEntryHours] = useState("0:00");
   const [newEntryNotes, setNewEntryNotes] = useState("");
   const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
+  const [editingJson, setEditingJson] = useState(false);
+  const [jsonText, setJsonText] = useState("");
 
 
   function handleSave() {
@@ -120,7 +124,42 @@ export default function ProjectCard({
     setCurrentMonthIndex(monthKeys.length > 0 ? monthKeys.length - 1 : 0);
   }, [monthKeys.length]);
 
-  return (
+  return editingJson ? (
+    <div className="p-4 border rounded-lg shadow bg-white">
+      <h3 className="font-semibold mb-2">Edit Project JSON</h3>
+      <textarea
+        className="w-full h-96 border rounded p-2 font-mono text-sm"
+        value={jsonText}
+        onChange={e => setJsonText(e.target.value)}
+      />
+      <div className="flex gap-2 mt-2">
+        <button
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          onClick={() => {
+            try {
+              const parsed = JSON.parse(jsonText);
+              if (onUpdateProject) {
+                onUpdateProject(parsed);
+                setEditingJson(false);
+              } else {
+                alert("Update function not available");
+              }
+            } catch (e) {
+              alert("Invalid JSON: " + (e instanceof Error ? e.message : String(e)));
+            }
+          }}
+        >
+          Save
+        </button>
+        <button
+          className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+          onClick={() => setEditingJson(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  ) : (
     <div
       className={`p-4 border rounded-lg shadow bg-white hover:bg-gray-50 transition ${selected ? "ring-2 ring-blue-400" : ""}`}
       onClick={handleCardClick}
@@ -178,16 +217,15 @@ export default function ProjectCard({
                 </svg>
               </button>
               <button
-                className="text-red-600 hover:text-red-800 p-1"
+                className="text-purple-600 hover:text-purple-800 p-1"
                 onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-                    onDelete(project.id);
-                  }
+                  setEditingJson(true);
+                  setJsonText(JSON.stringify(project, null, 2));
                 }}
-                title="Delete"
+                title="Edit JSON"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </button>
             </>

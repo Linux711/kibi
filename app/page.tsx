@@ -98,6 +98,15 @@ export default function Home() {
     saveCategories(updated);
   }
 
+  function updateProject(updatedProject: Project) {
+    const updated = categories.map(cat => ({
+      ...cat,
+      projects: cat.projects.map(p => (p.id === updatedProject.id ? updatedProject : p))
+    }));
+    setCategories(updated);
+    saveCategories(updated);
+  }
+
   const handleDataChange = () => {
     setCategories(loadCategories());
   };
@@ -174,6 +183,7 @@ export default function Home() {
                         project={p}
                         onEdit={editProject}
                         onDelete={deleteProject}
+                        onUpdateProject={updateProject}
                         selected={selectedProjectId === p.id}
                         onSelect={() => setSelectedProjectId(p.id)}
                         onEntryChange={(entry: Entry) => {
