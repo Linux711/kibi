@@ -268,11 +268,20 @@ export default function ProjectCard({
             <textarea
               ref={entryInputRef}
               className="border rounded px-2 py-1 flex-1 resize-none"
-              rows={3}
+              style={{height: 'auto', overflow: 'hidden'}}
+              rows={1}
               value={todayEntry.notes}
               placeholder="Notes for today..."
               onChange={e => {
+                const el = e.target;
+                el.style.height = 'auto';
+                el.style.height = el.scrollHeight + 'px';
                 onEntryChange?.({ ...todayEntry, notes: e.target.value });
+              }}
+              onInput={e => {
+                const el = e.currentTarget;
+                el.style.height = 'auto';
+                el.style.height = el.scrollHeight + 'px';
               }}
               onClick={e => e.stopPropagation()}
             />
@@ -304,10 +313,21 @@ export default function ProjectCard({
             />
             <textarea
               className="border rounded px-2 py-1 flex-1 resize-none"
-              rows={2}
+              style={{height: 'auto', overflow: 'hidden'}}
+              rows={1}
               value={newEntryNotes}
               placeholder="Notes"
-              onChange={e => setNewEntryNotes(e.target.value)}
+              onChange={e => {
+                const el = e.target;
+                el.style.height = 'auto';
+                el.style.height = el.scrollHeight + 'px';
+                setNewEntryNotes(e.target.value);
+              }}
+              onInput={e => {
+                const el = e.currentTarget;
+                el.style.height = 'auto';
+                el.style.height = el.scrollHeight + 'px';
+              }}
               onClick={e => e.stopPropagation()}
             />
               <button
@@ -394,11 +414,20 @@ export default function ProjectCard({
                         />
                         <textarea
                           className="border rounded px-2 py-1 flex-1 text-sm resize-none"
-                          rows={2}
+                          style={{height: 'auto', overflow: 'hidden'}}
+                          rows={1}
                           value={entry.notes}
                           placeholder="Notes"
                           onChange={e => {
+                            const el = e.target;
+                            el.style.height = 'auto';
+                            el.style.height = el.scrollHeight + 'px';
                             onEntryChange?.({ ...entry, notes: e.target.value });
+                          }}
+                          onInput={e => {
+                            const el = e.currentTarget;
+                            el.style.height = 'auto';
+                            el.style.height = el.scrollHeight + 'px';
                           }}
                           onClick={e => e.stopPropagation()}
                         />
