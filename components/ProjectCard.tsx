@@ -418,6 +418,12 @@ export default function ProjectCard({
                           rows={1}
                           value={entry.notes}
                           placeholder="Notes"
+                          ref={el => {
+                            if (el) {
+                              el.style.height = 'auto';
+                              el.style.height = el.scrollHeight + 'px';
+                            }
+                          }}
                           onChange={e => {
                             const el = e.target;
                             el.style.height = 'auto';
