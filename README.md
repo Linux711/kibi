@@ -6,23 +6,9 @@ A minimal project journal web app built with Next.js (App Router), TypeScript, a
 Accessible at https://kibi-delta.vercel.app/ 
 
 ## Features
-- Home page: List of projects (name, last updated date)
-- Project page: Timeline of daily entries (date, hours spent, notes)
+- Home page: List of categories, projects, daily entries (name, last updated date)
 - Add entry form: Hours spent, notes
 - State stored in localStorage (no backend)
-- Clean, minimal UI
-
-## Getting Started
-
-1. Install dependencies (if not already):
-	```sh
-	npm install
-	```
-2. Run the development server:
-	```sh
-	npm run dev
-	```
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Tech Stack
 - [Next.js](https://nextjs.org/) (App Router)
