@@ -2,6 +2,7 @@
 # Project Journal Web App
 
 A minimal project journal web app built with Next.js (App Router), TypeScript, and Tailwind CSS.
+
 Accessible at https://kibi-delta.vercel.app/ 
 
 ## Features
