@@ -14,6 +14,8 @@ export default function Home() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [projectInputs, setProjectInputs] = useState<{[key: string]: string}>({});
   const [expandByDefault, setExpandByDefault] = useState(true);
+  const [hiddenCategories, setHiddenCategories] = useState<Set<string>>(new Set());
+  const [hiddenProjects, setHiddenProjects] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   function handleExport() {
     const data = exportCategories();
@@ -108,13 +110,22 @@ export default function Home() {
     saveCategories(updated);
   }
 
+  function deleteCategory(categoryId: string) {
+    const updated = categories.filter(cat => cat.id !== categoryId);
+    setCategories(updated);
+    saveCategories(updated);
+    if (selectedCategoryId === categoryId) {
+      setSelectedCategoryId(updated.length > 0 ? updated[0].id : null);
+    }
+  }
+
   const handleDataChange = () => {
     setCategories(loadCategories());
   };
 
   return (
-    <main className="py-10 px-6">
-      <div className="w-full">
+    <main className="py-10 px-4">
+      <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Project Journal</h1>
         {/* Export/Import Buttons */}
         <div className="flex gap-2 mb-4">
@@ -167,17 +178,84 @@ export default function Home() {
         </form>
 
         <div className="space-y-6">
+          {hiddenCategories.size > 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <div className="text-sm font-medium mb-2">Hidden Categories ({hiddenCategories.size}):</div>
+              <div className="flex flex-wrap gap-2">
+                {categories.filter(cat => hiddenCategories.has(cat.id)).map(cat => (
+                  <button
+                    key={cat.id}
+                    className="bg-blue-200 hover:bg-blue-300 text-blue-900 px-3 py-1 rounded text-sm"
+                    onClick={() => setHiddenCategories(prev => {
+                      const newSet = new Set(prev);
+                      newSet.delete(cat.id);
+                      return newSet;
+                    })}
+                  >
+                    {cat.name} (show)
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {hiddenProjects.size > 0 && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+              <div className="text-sm font-medium mb-2">Hidden Projects ({hiddenProjects.size}):</div>
+              <div className="flex flex-wrap gap-2">
+                {categories.flatMap(cat => cat.projects.filter(p => hiddenProjects.has(p.id))).map(p => (
+                  <button
+                    key={p.id}
+                    className="bg-green-200 hover:bg-green-300 text-green-900 px-3 py-1 rounded text-sm"
+                    onClick={() => setHiddenProjects(prev => {
+                      const newSet = new Set(prev);
+                      newSet.delete(p.id);
+                      return newSet;
+                    })}
+                  >
+                    {p.name} (show)
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           {categories.length === 0 ? (
             <div className="text-gray-500">No categories yet.</div>
           ) : (
             categories.map(cat => (
+              !hiddenCategories.has(cat.id) && (
               <div key={cat.id} className="border rounded-lg p-4 bg-gray-50">
-                <h2
-                  className={`text-xl font-semibold mb-4 cursor-pointer ${(expandByDefault || selectedCategoryId === cat.id) ? 'text-[#44677eff]' : 'text-gray-700'}`}
-                  onClick={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
-                >
-                  {cat.name}
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2
+                    className={`text-xl font-semibold cursor-pointer ${(expandByDefault || selectedCategoryId === cat.id) ? 'text-[#44677eff]' : 'text-gray-700'}`}
+                    onClick={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
+                  >
+                    {cat.name}
+                  </h2>
+                  <div className="flex gap-2">
+                    <button
+                      className="text-gray-600 hover:text-gray-800 p-1"
+                      onClick={() => setHiddenCategories(prev => new Set([...prev, cat.id]))}
+                      title="Hide Category"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-4.803m5.596-3.856a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </button>
+                    <button
+                      className="text-red-600 hover:text-red-800 p-1"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to delete "${cat.name}" and all its projects?`)) {
+                          deleteCategory(cat.id);
+                        }
+                      }}
+                      title="Delete Category"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
                 {(expandByDefault || selectedCategoryId === cat.id) && (
                   <>
                     <form onSubmit={(e) => { e.preventDefault(); addProjectToCategory(cat.id, projectInputs[cat.id] || ''); setProjectInputs(prev => ({...prev, [cat.id]: ''})); }} className="flex gap-2 mb-4 ml-4">
@@ -200,8 +278,18 @@ export default function Home() {
                       {cat.projects.length === 0 ? (
                         <div className="text-gray-500 ml-4">No projects in this category.</div>
                       ) : (
-                        cat.projects.map(p => (
-                          <ProjectCard
+                        cat.projects.filter(p => !hiddenProjects.has(p.id)).map(p => (
+                          <div key={p.id} className="relative">
+                            <button
+                              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 z-10 p-1"
+                              onClick={() => setHiddenProjects(prev => new Set([...prev, p.id]))}
+                              title="Hide Project"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-4.803m5.596-3.856a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                            </button>
+                            <ProjectCard
                             key={p.id}
                             project={p}
                             onEdit={editProject}
@@ -234,12 +322,14 @@ export default function Home() {
                               saveCategories(updated);
                             }}
                           />
+                          </div>
                         ))
                       )}
                     </div>
                   </>
                 )}
               </div>
+              )
             ))
           )}
         </div>
