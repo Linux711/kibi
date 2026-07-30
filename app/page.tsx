@@ -13,6 +13,7 @@ export default function Home() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [projectInputs, setProjectInputs] = useState<{[key: string]: string}>({});
+  const [expandByDefault, setExpandByDefault] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   function handleExport() {
     const data = exportCategories();
@@ -112,8 +113,8 @@ export default function Home() {
   };
 
   return (
-    <main className="py-10 px-4">
-      <div className="max-w-5xl mx-auto">
+    <main className="py-10 px-6">
+      <div className="w-full">
         <h1 className="text-2xl font-bold mb-6">Project Journal</h1>
         {/* Export/Import Buttons */}
         <div className="flex gap-2 mb-4">
@@ -138,6 +139,14 @@ export default function Home() {
               onChange={handleImport}
             />
           </label>
+          <button
+            style={{ backgroundColor: expandByDefault ? "#38A3A5" : "#b0b0b0" }}
+            className="text-white px-4 py-2 rounded hover:opacity-90 ml-auto"
+            onClick={() => setExpandByDefault(!expandByDefault)}
+            type="button"
+          >
+            {expandByDefault ? "Expand All" : "Collapse All"}
+          </button>
         </div>
         {/* Add Category Form */}
         <form onSubmit={addCategory} className="flex gap-2 mb-6">
@@ -164,68 +173,72 @@ export default function Home() {
             categories.map(cat => (
               <div key={cat.id} className="border rounded-lg p-4 bg-gray-50">
                 <h2
-                  className={`text-xl font-semibold mb-4 cursor-pointer ${selectedCategoryId === cat.id ? 'text-[#44677eff]' : 'text-gray-700'}`}
-                  onClick={() => setSelectedCategoryId(cat.id)}
+                  className={`text-xl font-semibold mb-4 cursor-pointer ${(expandByDefault || selectedCategoryId === cat.id) ? 'text-[#44677eff]' : 'text-gray-700'}`}
+                  onClick={() => setSelectedCategoryId(selectedCategoryId === cat.id ? null : cat.id)}
                 >
                   {cat.name}
                 </h2>
-                <form onSubmit={(e) => { e.preventDefault(); addProjectToCategory(cat.id, projectInputs[cat.id] || ''); setProjectInputs(prev => ({...prev, [cat.id]: ''})); }} className="flex gap-2 mb-4 ml-4">
-                  <input
-                    className="border rounded px-3 py-2 flex-1 bg-white"
-                    placeholder="New project name"
-                    value={projectInputs[cat.id] || ''}
-                    onChange={e => setProjectInputs(prev => ({...prev, [cat.id]: e.target.value}))}
-                    required
-                  />
-                  <button
-                    style={{ backgroundColor: "#8783d1ff" }}
-                    className="text-white px-4 py-2 rounded hover:opacity-90"
-                    type="submit"
-                  >
-                    Add Project
-                  </button>
-                </form>
-                <div className="space-y-4">
-                  {cat.projects.length === 0 ? (
-                    <div className="text-gray-500 ml-4">No projects in this category.</div>
-                  ) : (
-                    cat.projects.map(p => (
-                      <ProjectCard
-                        key={p.id}
-                        project={p}
-                        onEdit={editProject}
-                        onDelete={deleteProject}
-                        onUpdateProject={updateProject}
-                        selected={selectedProjectId === p.id}
-                        onSelect={() => setSelectedProjectId(p.id)}
-                        onEntryChange={(entry: Entry) => {
-                          const updated = categories.map(c => ({
-                            ...c,
-                            projects: c.projects.map(proj => {
-                              if (proj.id !== p.id) return proj;
-                              const entries = proj.entries.filter(e => e.date !== entry.date);
-                              return { ...proj, entries: [...entries, entry] };
-                            })
-                          }));
-                          setCategories(updated);
-                          saveCategories(updated);
-                        }}
-                        onEntryDelete={(entryDate: string) => {
-                          const updated = categories.map(c => ({
-                            ...c,
-                            projects: c.projects.map(proj => {
-                              if (proj.id !== p.id) return proj;
-                              const entries = proj.entries.filter(e => e.date !== entryDate);
-                              return { ...proj, entries };
-                            })
-                          }));
-                          setCategories(updated);
-                          saveCategories(updated);
-                        }}
+                {(expandByDefault || selectedCategoryId === cat.id) && (
+                  <>
+                    <form onSubmit={(e) => { e.preventDefault(); addProjectToCategory(cat.id, projectInputs[cat.id] || ''); setProjectInputs(prev => ({...prev, [cat.id]: ''})); }} className="flex gap-2 mb-4 ml-4">
+                      <input
+                        className="border rounded px-3 py-2 flex-1 bg-white"
+                        placeholder="New project name"
+                        value={projectInputs[cat.id] || ''}
+                        onChange={e => setProjectInputs(prev => ({...prev, [cat.id]: e.target.value}))}
+                        required
                       />
-                    ))
-                  )}
-                </div>
+                      <button
+                        style={{ backgroundColor: "#8783d1ff" }}
+                        className="text-white px-4 py-2 rounded hover:opacity-90"
+                        type="submit"
+                      >
+                        Add Project
+                      </button>
+                    </form>
+                <div className="space-y-4">
+                      {cat.projects.length === 0 ? (
+                        <div className="text-gray-500 ml-4">No projects in this category.</div>
+                      ) : (
+                        cat.projects.map(p => (
+                          <ProjectCard
+                            key={p.id}
+                            project={p}
+                            onEdit={editProject}
+                            onDelete={deleteProject}
+                            onUpdateProject={updateProject}
+                            selected={expandByDefault || selectedProjectId === p.id}
+                            onSelect={() => setSelectedProjectId(selectedProjectId === p.id ? null : p.id)}
+                            onEntryChange={(entry: Entry) => {
+                              const updated = categories.map(c => ({
+                                ...c,
+                                projects: c.projects.map(proj => {
+                                  if (proj.id !== p.id) return proj;
+                                  const entries = proj.entries.filter(e => e.date !== entry.date);
+                                  return { ...proj, entries: [...entries, entry] };
+                                })
+                              }));
+                              setCategories(updated);
+                              saveCategories(updated);
+                            }}
+                            onEntryDelete={(entryDate: string) => {
+                              const updated = categories.map(c => ({
+                                ...c,
+                                projects: c.projects.map(proj => {
+                                  if (proj.id !== p.id) return proj;
+                                  const entries = proj.entries.filter(e => e.date !== entryDate);
+                                  return { ...proj, entries };
+                                })
+                              }));
+                              setCategories(updated);
+                              saveCategories(updated);
+                            }}
+                          />
+                        ))
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             ))
           )}
